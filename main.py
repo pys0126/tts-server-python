@@ -6,8 +6,8 @@ engine: Engine = pyttsx3.init()
 
 def start(text: str, save_path: str):
     # 设置语音属性
-    engine.setProperty("volume", 0.8)  # 设置音量，范围为0到1
-    engine.setProperty("rate", 150)  # 设置语速，默认为200
+    engine.setProperty("volume", 1)  # 设置音量，范围为0到1
+    engine.setProperty("rate", 130)  # 设置语速，默认为200
     engine.save_to_file(text=text, filename=save_path)
     engine.runAndWait()
 
