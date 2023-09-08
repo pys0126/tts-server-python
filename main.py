@@ -1,24 +1,56 @@
-from pyttsx3 import Engine
+import os
+import uvicorn
 import pyttsx3
-import time
+from typing import Union
+from pyttsx3 import Engine
+from utils import start_tts
+from status_code import StatusCode
+from json.decoder import JSONDecodeError
+from fastapi import FastAPI, Request, Query
+from config import host, port, workers, cache_path
+from fastapi.responses import FileResponse, JSONResponse
 
+
+# 初始化 pyttsx3 引擎
 engine: Engine = pyttsx3.init()
+# 实例化FastAPI
+app: FastAPI = FastAPI()
 
-def start(text: str, save_path: str):
-    # 设置语音属性
-    engine.setProperty("volume", 1)  # 设置音量，范围为0到1
-    engine.setProperty("rate", 130)  # 设置语速，默认为200
-    engine.save_to_file(text=text, filename=save_path)
-    engine.runAndWait()
 
-if __name__ == "__main__":
-    while True:
-        text: str = input("input text: ")
-        t1 = time.time()
-        start(
-            text=text,
-            save_path="./ouput.wav"
-        )
-        t2 = time.time()
-        print("文本长度：", len(text))
-        print("耗时：", t2 - t1, "\n")
+@app.post("/tts")
+async def tts(request: Request):
+    try:
+        request_data: dict = await request.json()
+    except JSONDecodeError as e:
+        print(e)
+        return JSONResponse(content={
+            "code": StatusCode.REQUEST_ERROR.value,
+            "message": "请求数据错误"
+        })
+    text: str = request_data.get("text")
+    if not text:
+        return JSONResponse(content={
+            "code": StatusCode.REQUEST_ERROR.value,
+            "message": "请求数据错误"
+        })
+    tts_file_path: str = start_tts(text=text, engine=engine)
+    return JSONResponse(content={
+        "code": StatusCode.OK.value,
+        "message": "成功",
+        "filename": os.path.basename(tts_file_path)
+    })
+
+
+@app.get("/getAudio")
+async def get_audio(filename: str = Query(...)):
+    file_path: str = os.path.join(cache_path, filename)
+    if not os.path.exists(file_path):
+        return JSONResponse(content={
+            "code": StatusCode.FILE_NOT_FOUND.value,
+            "message": "访问的文件不存在"
+        })
+    return FileResponse(path=os.path.abspath(file_path), filename=os.path.basename(file_path))
+
+
+if __name__ == "__main__":    
+    os.system(command=f"uvicorn main:app --host {host} --port {port} --workers {1}")
