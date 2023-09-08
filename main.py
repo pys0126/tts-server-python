@@ -53,4 +53,4 @@ async def get_audio(filename: str = Query(...)):
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host=host, port=port, workers=1)
+    uvicorn.run("main:app", host=host, port=port, workers=workers)
