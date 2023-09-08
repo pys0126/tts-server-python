@@ -52,5 +52,5 @@ async def get_audio(filename: str = Query(...)):
     return FileResponse(path=os.path.abspath(file_path), filename=os.path.basename(file_path))
 
 
-if __name__ == "__main__":    
-    os.system(command=f"uvicorn main:app --host {host} --port {port} --workers {workers}")
+if __name__ == "__main__":
+    uvicorn.run("main:app", host=host, port=port, workers=1)
