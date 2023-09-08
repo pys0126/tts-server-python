@@ -2,3 +2,5 @@ venv/
 venv-win/
 cache/
 __pycache__/
+dist/
+build/
