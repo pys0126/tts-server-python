@@ -16,7 +16,7 @@ if not os.path.exists(CONFIG_PATH):
     with open(CONFIG_PATH, "w", encoding="u8") as f:
         config.write(f)
 
-config.read(CONFIG_PATH)
+config.read(CONFIG_PATH, encoding="u8")
 app_config: SectionProxy = config[config_name]
 
 host: str = app_config.get("host")

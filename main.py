@@ -28,12 +28,14 @@ async def tts(request: Request):
             "message": "请求数据错误"
         })
     text: str = request_data.get("text")
+    volume: int = int(request_data.get("volume", 1))
+    rate: int = int(request_data.get("rate", 120))
     if not text:
         return JSONResponse(content={
             "code": StatusCode.REQUEST_ERROR.value,
             "message": "请求数据错误"
         })
-    tts_file_path: str = start_tts(text=text, engine=engine)
+    tts_file_path: str = start_tts(text=text, engine=engine, volume=volume, rate=rate)
     return JSONResponse(content={
         "code": StatusCode.OK.value,
         "message": "成功",
